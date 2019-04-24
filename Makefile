@@ -1,8 +1,8 @@
-# Makefile for building the NIF
+# Build an Autoconf package
 #
 # Makefile targets:
 #
-# all/install   build and install the NIF
+# all/install   build and install the package
 # clean         clean build products and intermediates
 #
 # Variables to override:
@@ -12,11 +12,7 @@
 # CC            C compiler
 # CROSSCOMPILE	crosscompiler prefix, if any
 # CFLAGS	compiler flags for compiling all C files
-# ERL_CFLAGS	additional compiler flags for files using Erlang header files
-# ERL_EI_INCLUDE_DIR include path to ei.h (Required for crosscompile)
-# ERL_EI_LIBDIR path to libei.a (Required for crosscompile)
 # LDFLAGS	linker flags for linking all binaries
-# ERL_LDFLAGS	additional linker flags for projects referencing Erlang libraries
 
 TOP := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PLY_TOP = $(TOP)/ply
@@ -36,7 +32,6 @@ ifeq ($(CROSSCOMPILE),)
     endif
 else
 # Crosscompiled build
-LDFLAGS += -fPIC -shared
 endif
 
 ifeq ($(shell uname -s),Linux)
@@ -55,7 +50,7 @@ calling_from_make:
 
 all: install
 
-install: $(BUILD) $(BUILD)/Makefile
+install: $(BUILD) $(PREFIX) $(BUILD)/Makefile
 	make -C $(BUILD) install
 
 $(PLY_TOP)/autogen.sh:
