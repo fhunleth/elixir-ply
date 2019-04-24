@@ -41,28 +41,30 @@ endif
 
 ifeq ($(shell uname -s),Linux)
     YACC=bison
-    YFLAGS=
 else
     # Use Homebrew's GNU bison install
     YACC=/usr/local/opt/bison/bin/bison
-
-    # Ugh. Force yacc to output to the src directory
-    YFLAGS="-o $(PLY_TOP)/src/lang/parse.c"
 endif
 CFLAGS += -I$(BUILD)/src/lang -I$(PLY_TOP)/src/lang
+
+# Ugh. Force yacc to output to the src directory
+YFLAGS="-o $(PLY_TOP)/src/lang/parse.c"
 
 calling_from_make:
 	mix compile
 
 all: install
 
-install: $(BUILD)/Makefile
+install: $(BUILD) $(BUILD)/Makefile
 	make -C $(BUILD) install
+
+$(PLY_TOP)/autogen.sh:
+	git -C $(TOP) submodule update --init --recursive
 
 $(PLY_TOP)/configure: $(PLY_TOP)/autogen.sh $(PLY_TOP)/configure.ac
 	cd $(PLY_TOP) && ./autogen.sh
 
-$(BUILD)/Makefile: $(BUILD) $(PLY_TOP)/configure
+$(BUILD)/Makefile: $(PLY_TOP)/configure
 	cd $(BUILD) && \
 	    YACC=$(YACC) YFLAGS=$(YFLAGS) CFLAGS="$(CFLAGS)" $(PLY_TOP)/configure \
 	    --prefix=$(PREFIX) \
